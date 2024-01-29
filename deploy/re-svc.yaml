@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: goorm-task2-mysql
+  namespace: goorm
+  labels:
+    app: goorm-task2
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: goorm-task2
+    tier: database
+  clusterIP: None
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: goorm-task2-spring
+  namespace: goorm
+  labels:
+    app: goorm-task2
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: goorm-task2
+    tier: backend
+  type: NodePort

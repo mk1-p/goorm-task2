@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-config
+  namespace: goorm
+data:
+  # 속성과 비슷한 키; 각 키는 간단한 값으로 매핑됨
+  MYSQL_DATABASE: goorm
+  MYSQL_USER: goorm-player
+  MYSQL_HOST: goorm-task2-mysql.goorm.svc.cluster.local
+  MYSQL_PORT: "3306"

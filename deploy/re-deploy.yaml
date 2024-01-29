@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goorm-task2-mysql-dp
+  namespace: goorm
+  labels:
+    app: goorm-task2
+spec:
+  selector:
+    matchLabels:
+      app: goorm-task2
+      tier: database
+  template:
+    metadata:
+      labels:
+        app: goorm-task2
+        tier: database
+    spec:
+      nodeSelector:
+        app: database-node
+      containers:
+        - image: mysql:8.0
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: MYSQL_PASSWORD
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: goorm-task2-mysql
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goorm-task2-back-dp
+  namespace: goorm
+  labels:
+    app: goorm-task2
+spec:
+  selector:
+    matchLabels:
+      app: goorm-task2
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: goorm-task2
+        tier: backend
+    spec:
+      containers:
+        - image: mk1dev662/goorm-task2:latest
+          name: goorm-task2-back-dp
+          env:
+            - name: ACTIVE_PROFILE
+              value: prod
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: MYSQL_HOST
+            - name: MYSQL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: MYSQL_PORT
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: MYSQL_PASSWORD
+          ports:
+            - containerPort: 80
